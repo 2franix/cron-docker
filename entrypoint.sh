@@ -18,11 +18,13 @@ check_variable() {
 }
 
 # Those env vars are defined in the Dockerfile but
-# let's check them one last time, to be on the safe side.
+# let's check them one last time, in case the running environment
+# messed up.
 check_variable CRON_USER_UID
 check_variable CRON_USER_GID
-check_variable CRON_SPEC_FILE "/crontab"
-check_variable CRON_VERBOSITY 8
+check_variable CRON_USER_HOME
+check_variable CRON_SPEC_FILE
+check_variable CRON_VERBOSITY
 
 # Don't exceed max verbosity.
 [ "$CRON_VERBOSITY" -lt 0 ] && CRON_VERBOSITY=0
@@ -34,13 +36,23 @@ if [ ! -f "$CRON_SPEC_FILE" ] ; then
     exit 1
 fi
 
+# Move user home if it was changed since the image was built.
+usermod -m -u "$CRON_USER_UID" -d "$CRON_USER_HOME" "$CRON_USER"
+
 # Adjust user and group ids if they were changed since the image
 # was built.
+RUN_CHOWN=no
 if [ "$(id -g "$CRON_USER")" -ne "$CRON_USER_GID" ] ; then
     groupmod -g "$CRON_USER_GID" "$CRON_USER"
+    RUN_CHOWN=yes
 fi
 if [ "$(id -u "$CRON_USER")" -ne "$CRON_USER_UID" ] ; then
     usermod -u "$CRON_USER_UID" "$CRON_USER"
+    RUN_CHOWN=yes
+fi
+
+if [ "$RUN_CHOWN" = "yes" ] ; then
+    chown -R "$CRON_USER_UID:$CRON_USER_GID" "$CRON_USER_HOME"
 fi
 
 # Install crontab using standard tool to make sure the permissions
