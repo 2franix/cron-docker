@@ -3,7 +3,7 @@ services:
     image: ghcr.io/2franix/cron-docker:latest
     restart: unless-stopped
     volumes:
-      - ./crontab:/crontab # Adjust if you change CRON_USER_HOME or CRON_SPEC_FILE below.
+      - ./crontab:/crontab # Adjust if you change CRON_SPEC_FILE below.
     environment:
       # Those are only displayed here to document their default values as set in the image.
       # You should not define them explicitly unless you want to change the values.
