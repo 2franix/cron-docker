@@ -17,33 +17,34 @@ check_variable() {
     fi
 }
 
-check_variable CRON_UID
-check_variable CRON_GID
+# Those env vars are defined in the Dockerfile but
+# let's check them one last time, to be on the safe side.
+check_variable CRON_USER_UID
+check_variable CRON_USER_GID
 check_variable CRON_SPEC_FILE "/crontab"
-# Set verbosity to minimum.
-check_variable VERBOSITY 8
+check_variable CRON_VERBOSITY 8
 
 # Don't exceed max verbosity.
-[ "$VERBOSITY" -lt 0 ] && VERBOSITY=0
+[ "$CRON_VERBOSITY" -lt 0 ] && CRON_VERBOSITY=0
 # Don't exceed min verbosity.
-[ "$VERBOSITY" -gt 8 ] && VERBOSITY=8
+[ "$CRON_VERBOSITY" -gt 8 ] && CRON_VERBOSITY=8
 
 if [ ! -f "$CRON_SPEC_FILE" ] ; then
     echo "Cron spec file $CRON_SPEC_FILE not found."
     exit 1
 fi
 
-CRON_USER=cron_worker
-# Create user and group if not yet done.
-if ! grep "^${CRON_USER}:" /etc/group ; then
-    groupadd -g "$CRON_GID" ${CRON_USER}
+# Adjust user and group ids if they were changed since the image
+# was built.
+if [ "$(id -g "$CRON_USER")" -ne "$CRON_USER_GID" ] ; then
+    groupmod -g "$CRON_USER_GID" "$CRON_USER"
 fi
-if ! id "$CRON_USER" >/dev/null 2>&1 ; then
-    useradd -m -u "$CRON_UID" -g "$CRON_USER" "$CRON_USER"
+if [ "$(id -u "$CRON_USER")" -ne "$CRON_USER_UID" ] ; then
+    usermod -u "$CRON_USER_UID" "$CRON_USER"
 fi
 
 # Install crontab using standard tool to make sure the permissions
 # are as cron expects. Otherwise, the crontab is silently discarded.
 crontab -u "$CRON_USER" "$CRON_SPEC_FILE"
 
-crond -f -d "$VERBOSITY" -l "$VERBOSITY"
+crond -f -d "$CRON_VERBOSITY" -l "$CRON_VERBOSITY"
