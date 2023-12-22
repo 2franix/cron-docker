@@ -17,33 +17,46 @@ check_variable() {
     fi
 }
 
-check_variable CRON_UID
-check_variable CRON_GID
-check_variable CRON_SPEC_FILE "/crontab"
-# Set verbosity to minimum.
-check_variable VERBOSITY 8
+# Those env vars are defined in the Dockerfile but
+# let's check them one last time, in case the running environment
+# messed up.
+check_variable CRON_USER_UID
+check_variable CRON_USER_GID
+check_variable CRON_USER_HOME
+check_variable CRON_SPEC_FILE
+check_variable CRON_VERBOSITY
 
 # Don't exceed max verbosity.
-[ "$VERBOSITY" -lt 0 ] && VERBOSITY=0
+[ "$CRON_VERBOSITY" -lt 0 ] && CRON_VERBOSITY=0
 # Don't exceed min verbosity.
-[ "$VERBOSITY" -gt 8 ] && VERBOSITY=8
+[ "$CRON_VERBOSITY" -gt 8 ] && CRON_VERBOSITY=8
 
 if [ ! -f "$CRON_SPEC_FILE" ] ; then
     echo "Cron spec file $CRON_SPEC_FILE not found."
     exit 1
 fi
 
-CRON_USER=cron_worker
-# Create user and group if not yet done.
-if ! grep "^${CRON_USER}:" /etc/group ; then
-    groupadd -g "$CRON_GID" ${CRON_USER}
+# Move user home if it was changed since the image was built.
+usermod -m -u "$CRON_USER_UID" -d "$CRON_USER_HOME" "$CRON_USER"
+
+# Adjust user and group ids if they were changed since the image
+# was built.
+RUN_CHOWN=no
+if [ "$(id -g "$CRON_USER")" -ne "$CRON_USER_GID" ] ; then
+    groupmod -g "$CRON_USER_GID" "$CRON_USER"
+    RUN_CHOWN=yes
 fi
-if ! id "$CRON_USER" >/dev/null 2>&1 ; then
-    useradd -m -u "$CRON_UID" -g "$CRON_USER" "$CRON_USER"
+if [ "$(id -u "$CRON_USER")" -ne "$CRON_USER_UID" ] ; then
+    usermod -u "$CRON_USER_UID" "$CRON_USER"
+    RUN_CHOWN=yes
+fi
+
+if [ "$RUN_CHOWN" = "yes" ] ; then
+    chown -R "$CRON_USER_UID:$CRON_USER_GID" "$CRON_USER_HOME"
 fi
 
 # Install crontab using standard tool to make sure the permissions
 # are as cron expects. Otherwise, the crontab is silently discarded.
 crontab -u "$CRON_USER" "$CRON_SPEC_FILE"
 
-crond -f -d "$VERBOSITY" -l "$VERBOSITY"
+crond -f -d "$CRON_VERBOSITY" -l "$CRON_VERBOSITY"
