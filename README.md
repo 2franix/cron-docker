@@ -53,11 +53,11 @@ If you need additional scripts to run the job, the recommended way is to mount t
 
 ## Environment variables in the image
 
-| Variable       | Default value   | Modifiable | Notes                                                                                                |
-|----------------|-----------------|------------|------------------------------------------------------------------------------------------------------|
-| CRON_USER      | "worker"        | no         | Set at build time, cannot be changed.                                                                |
-| CRON_USER_UID  | 1000            | yes        |                                                                                                      |
-| CRON_USER_GID  | 1000            | yes        |                                                                                                      |
-| CRON_USER_HOME | /worker         | yes        | See CRON_SPEC_FILE if you change this variable.                                                      |
-| CRON_SPEC_FILE | /worker/crontab | yes        | Contains the crontab definition, as expected by cron. Make sure to keep it under the home directory. |
-| CRON_VERBOSITY | 8               | yes        | A value between 0 (max) and 8 (min) to control cron's verbosity.                                     |
+| Variable       | Default value     | Modifiable | Notes                                                                                                |
+|----------------|-------------------|------------|------------------------------------------------------------------------------------------------------|
+| CRON_USER      | "worker"          | no         | Set at build time, cannot be changed.                                                                |
+| CRON_USER_UID  | 1000              | yes        |                                                                                                      |
+| CRON_USER_GID  | 1000              | yes        |                                                                                                      |
+| CRON_USER_HOME | `/worker`         | yes        | See CRON_SPEC_FILE if you change this variable.                                                      |
+| CRON_SPEC_FILE | `/worker/crontab` | yes        | Contains the crontab definition, as expected by cron. Make sure to keep it under the home directory. |
+| CRON_VERBOSITY | 8                 | yes        | A value between 0 (max) and 8 (min) to control cron's verbosity.                                     |

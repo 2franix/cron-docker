@@ -7,7 +7,7 @@ RUN apk add \
     tzdata
 
 # Name of the user to run the cron job. Its UID and GID
-# is decided at container runtime, via CRON_UID and CRON_GID
+# is decided at container runtime, via CRON_USER_UID and CRON_USER_GID
 # Defining the name here so that derived images can use it.
 ENV CRON_USER="worker"
 ENV CRON_USER_UID=1000
