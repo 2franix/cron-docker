@@ -3,12 +3,12 @@ services:
     image: ghcr.io/2franix/cron-docker:latest
     restart: unless-stopped
     volumes:
-      - ./crontab:/worker/crontab # Adjust if you change CRON_USER_HOME or CRON_SPEC_FILE below.
+      - ./crontab:/crontab # Adjust if you change CRON_USER_HOME or CRON_SPEC_FILE below.
     environment:
       # Those are only displayed here to document their default values as set in the image.
       # You should not define them explicitly unless you want to change the values.
       CRON_USER_UID: 1000 # Id of the user running the cron job.
       CRON_USER_GID: 1000 # Primary group id of the user running the cron job.
       CRON_USER_HOME: /worker # Home directory for the user running the cron job.
-      CRON_SPEC_FILE: /worker/crontab # Make sure to keep the file under the user home to avoid permission issues.
+      CRON_SPEC_FILE: /crontab # Location of the cron job specification file.
       CRON_VERBOSITY: 8 # 0-8, 0 is maximum verbosity, 8 is minimum.
