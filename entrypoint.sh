@@ -23,6 +23,7 @@ run_script_folder() {
         echo "Running scripts in $folder now."
     else
         echo "No $folder found, skipping this step."
+        return
     fi
     for f in "$1"/* ; do
         echo "=> executing $f"

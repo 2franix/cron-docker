@@ -14,4 +14,5 @@ services:
       CRON_USER_GID: 1000 # Primary group id of the user running the cron job.
       CRON_USER_HOME: /worker # Home directory for the user running the cron job.
       CRON_SPEC_FILE: /crontab # Location of the cron job specification file.
+      CRON_ENTRYPOINT_PRE_DIR: "/blahblah"
       CRON_VERBOSITY: 8 # 0-8, 0 is maximum verbosity, 8 is minimum.
