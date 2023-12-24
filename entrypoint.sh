@@ -53,21 +53,24 @@ if [ ! -f "$CRON_SPEC_FILE" ] ; then
 fi
 
 # Move user home if it was changed since the image was built.
-usermod -m -u "$CRON_USER_UID" -d "$CRON_USER_HOME" "$CRON_USER"
+usermod -m -d "$CRON_USER_HOME" "$CRON_USER"
 
 # Adjust user and group ids if they were changed since the image
 # was built.
 RUN_CHOWN=no
 if [ "$(id -g "$CRON_USER")" -ne "$CRON_USER_GID" ] ; then
+    echo "Adjusting id of group $CRON_USER to $CRON_USER_GID"
     groupmod -g "$CRON_USER_GID" "$CRON_USER"
     RUN_CHOWN=yes
 fi
 if [ "$(id -u "$CRON_USER")" -ne "$CRON_USER_UID" ] ; then
+    echo "Adjusting user id of $CRON_USER to $CRON_USER_UID"
     usermod -u "$CRON_USER_UID" "$CRON_USER"
     RUN_CHOWN=yes
 fi
 
 if [ "$RUN_CHOWN" = "yes" ] ; then
+    echo "Changing ownership of $CRON_USER_HOME"
     chown -R "$CRON_USER_UID:$CRON_USER_GID" "$CRON_USER_HOME"
 fi
 

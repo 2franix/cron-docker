@@ -49,7 +49,9 @@ See [the sample compose.yaml](https://github.com/2franix/cron-docker/tree/main/e
 The image runs the cron daemon as root but uses the `worker` user to run the cron job.
 At runtime, it installs the crontab file specified by the `CRON_SPEC_FILE` environment variable as `worker`'s crontab.
 
-If you need additional scripts to run the job, the recommended way is to mount them in `worker`'s home directory (defaults to `/worker`, configurable via the `CRON_USER_HOME` environment variable). Doing so, the image guarantees that those file are owned by the `worker` user at runtime.
+If you need additional scripts to run the job, two approaches are available:
+- mount them in `worker`'s home directory (defaults to `/worker`, configurable via the `CRON_USER_HOME` environment variable). At startup, the container changes ownership of the home directory recursively, which guarantees that those file are owned by the `worker` user at runtime. The drawback is that the files ownership is changed on the host as well, which may not be suitable to all use cases
+- create a derived image and copy the files in `worker`'s home directory at build time. Unlike the other approach above, the files on the host  are not modified, since this is a copy.
 
 If you need to perform additional actions as root before starting the cron daemon, mount shell scripts in the `/entrypoint.pre.d` directory. Those files are executed in alphabetical order.
 
