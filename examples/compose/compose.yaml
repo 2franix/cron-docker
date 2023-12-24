@@ -1,9 +1,12 @@
 services:
   cron:
-    image: ghcr.io/2franix/cron-docker:latest
+    #image: ghcr.io/2franix/cron-docker:latest
+    image: cron
     restart: unless-stopped
     volumes:
       - ./crontab:/crontab # Adjust if you change CRON_SPEC_FILE below.
+      - ./entrypoint.pre.1.sh:/entrypoint.pre.d/pre.1.sh
+      - ./entrypoint.pre.2.sh:/entrypoint.pre.d/pre.2.sh
     environment:
       # Those are only displayed here to document their default values as set in the image.
       # You should not define them explicitly unless you want to change the values.

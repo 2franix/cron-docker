@@ -17,6 +17,20 @@ check_variable() {
     fi
 }
 
+run_script_folder() {
+    folder="$1"
+    if [ -d "$folder" ] ; then
+        echo "Running scripts in $folder now."
+    else
+        echo "No $folder found, skipping this step."
+    fi
+    for f in "$1"/* ; do
+        echo "=> executing $f"
+        sh "$f"
+        echo "=> $f done"
+    done
+}
+
 # Those env vars are defined in the Dockerfile but
 # let's check them one last time, in case the running environment
 # messed up.
@@ -24,6 +38,7 @@ check_variable CRON_USER_UID
 check_variable CRON_USER_GID
 check_variable CRON_USER_HOME
 check_variable CRON_SPEC_FILE
+check_variable CRON_ENTRYPOINT_PRE_DIR
 check_variable CRON_VERBOSITY
 
 # Don't exceed max verbosity.
@@ -59,4 +74,5 @@ fi
 # are as cron expects. Otherwise, the crontab is silently discarded.
 crontab -u "$CRON_USER" "$CRON_SPEC_FILE"
 
+run_script_folder "$CRON_ENTRYPOINT_PRE_DIR"
 crond -f -d "$CRON_VERBOSITY" -l "$CRON_VERBOSITY"
