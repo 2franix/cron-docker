@@ -1,9 +1,12 @@
 services:
   cron:
-    image: ghcr.io/2franix/cron-docker:latest
+    #image: ghcr.io/2franix/cron-docker:latest
+    image: cron
     restart: unless-stopped
     volumes:
       - ./crontab:/crontab # Adjust if you change CRON_SPEC_FILE below.
+      - ./entrypoint.pre.1.sh:/entrypoint.pre.d/pre.1.sh
+      - ./entrypoint.pre.2.sh:/entrypoint.pre.d/pre.2.sh
     environment:
       # Those are only displayed here to document their default values as set in the image.
       # You should not define them explicitly unless you want to change the values.
@@ -11,4 +14,5 @@ services:
       CRON_USER_GID: 1000 # Primary group id of the user running the cron job.
       CRON_USER_HOME: /worker # Home directory for the user running the cron job.
       CRON_SPEC_FILE: /crontab # Location of the cron job specification file.
+      CRON_ENTRYPOINT_PRE_DIR: "/blahblah"
       CRON_VERBOSITY: 8 # 0-8, 0 is maximum verbosity, 8 is minimum.

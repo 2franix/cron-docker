@@ -42,7 +42,7 @@ services:
       - ./crontab:/crontab
 ```
 
-See [the sample compose.yaml](examples/compose/compose.yaml) file in the examples folder.
+See [the sample compose.yaml](https://github.com/2franix/cron-docker/tree/main/examples/compose) file in the examples folder for a more detailed example.
 
 # Features
 
@@ -51,15 +51,18 @@ At runtime, it installs the crontab file specified by the `CRON_SPEC_FILE` envir
 
 If you need additional scripts to run the job, the recommended way is to mount them in `worker`'s home directory (defaults to `/worker`, configurable via the `CRON_USER_HOME` environment variable). Doing so, the image guarantees that those file are owned by the `worker` user at runtime.
 
+If you need to perform additional actions as root before starting the cron daemon, mount shell scripts in the `/entrypoint.pre.d` directory. Those files are executed in alphabetical order.
+
 Note that the mounted crontab is installed at startup, so modifying it while the container is running does not have any effect on cron.
 
 ## Environment variables in the image
 
-| Variable       | Default value | Modifiable | Notes                                                            |
-|----------------|---------------|------------|------------------------------------------------------------------|
-| CRON_USER      | "worker"      | no         | Set at build time, cannot be changed.                            |
-| CRON_USER_UID  | 1000          | yes        |                                                                  |
-| CRON_USER_GID  | 1000          | yes        |                                                                  |
-| CRON_USER_HOME | `/worker`     | yes        | See CRON_SPEC_FILE if you change this variable.                  |
-| CRON_SPEC_FILE | `/crontab`    | yes        | Contains the crontab definition, as expected by cron.            |
-| CRON_VERBOSITY | 8             | yes        | A value between 0 (max) and 8 (min) to control cron's verbosity. |
+| Variable                | Default value       | Modifiable | Notes                                                                       |
+|-------------------------|---------------------|------------|-----------------------------------------------------------------------------|
+| CRON_USER               | "worker"            | no         | Set at build time, cannot be changed.                                       |
+| CRON_USER_UID           | 1000                | yes        |                                                                             |
+| CRON_USER_GID           | 1000                | yes        |                                                                             |
+| CRON_USER_HOME          | `/worker`           | yes        | See CRON_SPEC_FILE if you change this variable.                             |
+| CRON_ENTRYPOINT_PRE_DIR | `/entrypoint.pre.d` | yes        | Optional folder containing scripts to execute as root before starting cron. |
+| CRON_SPEC_FILE          | `/crontab`          | yes        | Contains the crontab definition, as expected by cron.                       |
+| CRON_VERBOSITY          | 8                   | yes        | A value between 0 (max) and 8 (min) to control cron's verbosity.            |
