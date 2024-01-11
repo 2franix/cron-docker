@@ -1,7 +1,6 @@
 services:
   cron:
-    #image: ghcr.io/2franix/cron-docker:latest
-    image: cron
+    image: ghcr.io/2franix/cron-docker:latest
     restart: unless-stopped
     volumes:
       - ./crontab:/crontab # Adjust if you change CRON_SPEC_FILE below.
