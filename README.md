@@ -63,20 +63,26 @@ It is possible to configure msmtp in the container so that any output produced b
 
 ## Environment variables in the image
 
-| Variable                  | Default value       | Modifiable | Notes                                                                                                                               |
-|---------------------------|---------------------|------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| `CRON_USER`               | "worker"            | no         | Set at build time, cannot be changed.                                                                                               |
-| `CRON_USER_UID`           | 1000                | yes        |                                                                                                                                     |
-| `CRON_USER_GID`           | 1000                | yes        |                                                                                                                                     |
-| `CRON_USER_HOME`          | `/worker`           | yes        | See CRON_SPEC_FILE if you change this variable.                                                                                     |
-| `CRON_ENTRYPOINT_PRE_DIR` | `/entrypoint.pre.d` | yes        | Optional folder containing scripts to execute as root before starting cron.                                                         |
-| `CRON_SPEC_FILE`          | `/crontab`          | yes        | Contains the crontab definition, as expected by cron.                                                                               |
-| `CRON_VERBOSITY`          | 8                   | yes        | A value between 0 (max) and 8 (min) to control cron's verbosity.                                                                    |
-| `CRON_MAILTO`             | ""                  | yes        | Cron emails recipient.                                                                                                              |
-| `SMTP_HOST`               | ""                  | yes        | SMTP host server to use to send emails. Leave it empty to disable msmtp entirely.                                                   |
-| `SMTP_PORT`               | ""                  | yes        | Port of the SMTP server to use to send emails.                                                                                      |
-| `SMTP_TLS`                | "on"                | yes        | Value of [msmtp's TLS option](https://marlam.de/msmtp/msmtp.html#index-tls).                                                        |
-| `SMTP_FROM`               | ""                  | yes        | Address to appear as sender of emails sent by cron.                                                                                 |
-| `SMTP_USER`               | ""                  | yes        | Username when authenticating against the SMTP server.                                                                               |
-| `SMTP_PASSWORD`           | ""                  | yes        | Password when authenticating against the SMTP server.                                                                               |
-| `SMTP_PASSWORD_FILE`      | ""                  | yes        | File containing the password to use when authenticating against the SMTP server. Leave it empty to use the value of `SMTP_PASSWORD` |
+Instead of storing the value directly in some of the variables, it is possible to write it to a file in the container and store the path to this file in the `XXX_FILE` variable.
+For example, rather than storing the SMTP password in `SMTP_PASSWORD`, one can store it in the `/etc/smtp_password` file in the container and set `SMTP_PASSWORD_FILE=/etc/smtp_password`.
+This is mainly useful to leverage docker secrets to pass sensitive data.
+
+Not all variables support this feature. Refer to the "Has _FILE variant" column in the table below.
+
+| Variable                  | Default value       | Modifiable | Has _FILE variant | Notes                                                                             |
+|---------------------------|---------------------|------------|-------------------|-----------------------------------------------------------------------------------|
+| `CRON_USER`               | "worker"            | no         |                   | Set at build time, cannot be changed.                                             |
+| `CRON_USER_UID`           | 1000                | yes        |                   |                                                                                   |
+| `CRON_USER_GID`           | 1000                | yes        |                   |                                                                                   |
+| `CRON_USER_HOME`          | `/worker`           | yes        |                   | See CRON_SPEC_FILE if you change this variable.                                   |
+| `CRON_ENTRYPOINT_PRE_DIR` | `/entrypoint.pre.d` | yes        |                   | Optional folder containing scripts to execute as root before starting cron.       |
+| `CRON_SPEC_FILE`          | `/crontab`          | yes        |                   | Contains the crontab definition, as expected by cron.                             |
+| `CRON_VERBOSITY`          | 8                   | yes        |                   | A value between 0 (max) and 8 (min) to control cron's verbosity.                  |
+| `CRON_MAILTO`             | ""                  | yes        | X                 | Cron emails recipient.                                                            |
+| `SMTP_HOST`               | ""                  | yes        | X                 | SMTP host server to use to send emails. Leave it empty to disable msmtp entirely. |
+| `SMTP_PORT`               | ""                  | yes        | X                 | Port of the SMTP server to use to send emails.                                    |
+| `SMTP_TLS`                | "on"                | yes        |                   | Value of [msmtp's TLS option](https://marlam.de/msmtp/msmtp.html#index-tls).      |
+| `SMTP_FROM`               | ""                  | yes        | X                 | Address to appear as sender of emails sent by cron.                               |
+| `SMTP_USER`               | ""                  | yes        | X                 | Username when authenticating against the SMTP server.                             |
+| `SMTP_PASSWORD`           | ""                  | yes        | X                 | Password when authenticating against the SMTP server.                             |
+  
