@@ -32,6 +32,30 @@ run_script_folder() {
     done
 }
 
+# Create msmtp config if enabled.
+if [ -n "$SMTP_HOST" ] ; then
+    MSMTPRC=/etc/msmtprc
+    echo account relay > "$MSMTPRC"
+    echo tls "$SMTP_TLS" >> "$MSMTPRC"
+    echo host "$SMTP_HOST" >> "$MSMTPRC"
+    if [ -n "$SMTP_PORT" ] ; then
+        echo port "$SMTP_PORT" >> "$MSMTPRC"
+    fi
+    if [ -n "$SMTP_FROM" ] ; then
+        echo from "$SMTP_FROM" >> "$MSMTPRC"
+    fi
+    if [ -n "$SMTP_USER" ] ; then
+        echo auth on >> "$MSMTPRC"
+        echo user "$SMTP_USER" >> "$MSMTPRC"
+        if [ -n "$SMTP_PASSWORD_FILE" ] ; then
+            echo password "$(cat "$SMTP_PASSWORD_FILE")" >> "$MSMTPRC"
+        else
+            echo password "$SMTP_PASSWORD" >> "$MSMTPRC"
+        fi
+    fi
+    echo account default : relay >> "$MSMTPRC"
+fi
+
 # Those env vars are defined in the Dockerfile but
 # let's check them one last time, in case the running environment
 # messed up.
@@ -74,9 +98,14 @@ if [ "$RUN_CHOWN" = "yes" ] ; then
     chown -R "$CRON_USER_UID:$CRON_USER_GID" "$CRON_USER_HOME"
 fi
 
+if [ -n "$CRON_MAILTO" ] ; then
+    echo MAILTO=${CRON_MAILTO} > /tmp/crontab
+fi
+cat "$CRON_SPEC_FILE" >> /tmp/crontab
+
 # Install crontab using standard tool to make sure the permissions
 # are as cron expects. Otherwise, the crontab is silently discarded.
-crontab -u "$CRON_USER" "$CRON_SPEC_FILE"
+crontab -u "$CRON_USER" /tmp/crontab
 
 run_script_folder "$CRON_ENTRYPOINT_PRE_DIR"
 crond -f -d "$CRON_VERBOSITY" -l "$CRON_VERBOSITY"
