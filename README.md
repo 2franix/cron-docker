@@ -7,7 +7,7 @@
 Pull it with:
 
 ``` sh
-docker pull docker pull ghcr.io/2franix/cron-docker:latest
+docker pull ghcr.io/2franix/cron-docker:latest
 ```
 
 Create a `./crontab` file:
