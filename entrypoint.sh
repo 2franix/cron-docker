@@ -29,7 +29,7 @@ check_variable() {
     fi
 }
 
-run_script_folder() {
+source_script_folder() {
     folder="$1"
     if [ -d "$folder" ] ; then
         echo "Running scripts in $folder now."
@@ -39,7 +39,8 @@ run_script_folder() {
     fi
     for f in "$1"/* ; do
         echo "=> executing $f"
-        sh "$f"
+        # shellcheck source=/dev/null
+        . "$f"
         echo "=> $f done"
     done
 }
@@ -126,5 +127,5 @@ cat "$CRON_SPEC_FILE" >> /tmp/crontab
 # are as cron expects. Otherwise, the crontab is silently discarded.
 crontab -u "$CRON_USER" /tmp/crontab
 
-run_script_folder "$CRON_ENTRYPOINT_PRE_DIR"
+source_script_folder "$CRON_ENTRYPOINT_PRE_DIR"
 crond -f -d "$CRON_VERBOSITY" -l "$CRON_VERBOSITY"
