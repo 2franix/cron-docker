@@ -35,6 +35,11 @@ jobs:
           images: |
             ghcr.io/2franix/cron-docker
             cddocker728/cron
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern=v{{version}}
+            type=semver,pattern=v{{major}}.{{minor}}
+            type=semver,pattern=v{{major}}
 
       - name: Login to ghcr.io
         uses: docker/login-action@v3
